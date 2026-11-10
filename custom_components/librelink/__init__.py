@@ -25,14 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
 
-    _LOGGER.debug(
-        "Appel de async_setup_entry entry: entry_id= %s, data= %s, user = %s BaseUrl = %s",
-        entry.entry_id,
-        entry.data,
-        entry.data[CONF_USERNAME],
-        #        entry.data[CONF_PASSWORD],
-        BASE_URL_LIST.get(entry.data[COUNTRY]),
-    )
+    _LOGGER.debug("Setting up LibreLink entry %s", entry.entry_id)
     hass.data.setdefault(DOMAIN, {})
 
     #    Using the declared API for login based on patient credentials to retreive the bearer Token

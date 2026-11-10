@@ -38,10 +38,6 @@ class LibreLinkDevice(CoordinatorEntity):
         # self.patientId = self.coordinator.data[index]["patientId"]
         self._attr_unique_id = self.coordinator.data[index]["patientId"]
 
-        _LOGGER.debug(
-            "entity unique id is %s",
-            self._attr_unique_id,
-        )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, self.coordinator.data[index]["patientId"])},
             name=self.coordinator.data[index]["firstName"] + " " + self.coordinator.data[index]["lastName"],

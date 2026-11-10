@@ -69,9 +69,8 @@ class LibreLinkApiClient:
             patients = APIreponse  # to be used for debugging in status not ok
 
         _LOGGER.debug(
-            "Number of patients : %s and patient list %s",
+            "Number of patients: %s",
             len(patients),
-            patients,
         )
 
         return patients
@@ -110,11 +109,6 @@ class LibreLinkGetGraph:
                 "patientid": self.patient_id,
             },
             data={},
-        )
-
-        _LOGGER.debug(
-            "Get Connection : %s",
-            APIreponse,
         )
 
         return APIreponse

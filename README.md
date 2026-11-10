@@ -1,3 +1,42 @@
+# Personal LibreLink fork
+
+This fork is maintained by patrikbuilds, based on gillesvs/librelink commit
+23be8b9c60a4e6169944369afe2d7bdf41b8e896. Upstream changes must be reviewed
+and merged manually; this repository has no automatic upstream synchronization.
+
+Version 1.2.4 removes logging of configuration data (including the password),
+patient identifiers, patient lists, and full API responses. Status codes and
+patient counts remain available for troubleshooting.
+
+## Install this fork
+
+1. In HACS, open Custom repositories and add
+   `https://github.com/patrikbuilds/librelink` with type **Integration**.
+2. Download LibreLink from **patrikbuilds/librelink** and restart Home Assistant.
+3. Add LibreLink through Settings > Devices & services and configure your
+   LibreLinkUp follower account.
+
+If the original repository is already installed, back up Home Assistant first.
+Remove the original download/repository from HACS before installing this fork,
+so two repositories do not manage the same `custom_components/librelink` folder.
+Keep the existing LibreLink entry in Settings > Devices & services; the fork
+retains the same integration domain and configuration format. Install the fork
+before restarting Home Assistant.
+
+## Security and maintenance
+
+- Credentials remain readable in HA's `.storage/core.config_entries`; this fork
+  does not add encryption. Protect configuration files and backups.
+- Credentials are sent to the configured LibreView API over HTTPS. The token is
+  used for subsequent requests.
+- Use a unique password and, where possible, a dedicated follower account.
+- Review code changes before merging upstream or installing a new fork release.
+  A fork controls updates; it is not a sandbox or a guarantee of security.
+- If the original integration logged credentials, rotate the password after
+  switching and handle old logs/backups as sensitive.
+
+---
+
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)](https://GitHub.com/Naereen/StrapDown.js/graphs/commit-activity)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![Validate with Hassfest](https://github.com/gillesvs/librelink/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/gillesvs/librelink/actions/workflows/hassfest.yaml)
