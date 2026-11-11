@@ -6,7 +6,7 @@ LOGGER: Logger = getLogger(__package__)
 
 NAME = "LibreLink"
 DOMAIN = "librelink"
-VERSION = "1.2.4"
+VERSION = "1.2.5"
 ATTRIBUTION = "Data provided by https://libreview.com"
 LOGIN_URL = "/llu/auth/login"
 CONNECTION_URL = "/llu/connections"
@@ -19,6 +19,7 @@ COUNTRY_LIST = [
     "Canada",
     "Germany",
     "Europe",
+    "Europe 2",
     "France",
     "Japan",
     "Russia",
@@ -32,13 +33,14 @@ BASE_URL_LIST = {
     "Canada": "https://api-ca.libreview.io",
     "Germany": "https://api-de.libreview.io",
     "Europe": "https://api-eu.libreview.io",
+    "Europe 2": "https://api-eu2.libreview.io",
     "France": "https://api-fr.libreview.io",
     "Japan": "https://api-jp.libreview.io",
     "Russia": "https://api.libreview.ru",
     "United States": "https://api-us.libreview.io",
 }
 PRODUCT = "llu.android"
-VERSION_APP = "4.7"
+VERSION_APP = "4.16.0"
 APPLICATION = "application/json"
 GLUCOSE_VALUE_ICON = "mdi:diabetes"
 GLUCOSE_TREND_ICON = [

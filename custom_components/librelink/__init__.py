@@ -7,9 +7,11 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LibreLinkApiClient, LibreLinkApiLogin, LibreLinkGetGraph
+from .api import (LibreLinkApiClient, LibreLinkApiLogin, auth_key, take_auth,
+                  LibreLinkApiAuthenticationError, LibreLinkApiError)
 from .const import BASE_URL_LIST, COUNTRY, DOMAIN
 from .coordinator import LibreLinkDataUpdateCoordinator
 
@@ -28,34 +30,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     _LOGGER.debug("Setting up LibreLink entry %s", entry.entry_id)
     hass.data.setdefault(DOMAIN, {})
 
-    #    Using the declared API for login based on patient credentials to retreive the bearer Token
-
-    myLibrelinkLogin = LibreLinkApiLogin(
-        username=entry.data[CONF_USERNAME],
-        password=entry.data[CONF_PASSWORD],
-        base_url=BASE_URL_LIST.get(entry.data[COUNTRY]),
-        session=async_get_clientsession(hass),
-    )
-
-    # Then getting the token. This token is a long life token, so initializaing at HA start up is enough
-    sessionToken = await myLibrelinkLogin.async_get_token()
-
-    # The retrieved token will be used to initiate the coordinator which will be used to update the data on a regular basis
+    base_url = BASE_URL_LIST.get(entry.data[COUNTRY])
+    session = async_get_clientsession(hass)
+    cache = hass.data[DOMAIN].setdefault('_auth_cache', {})
+    auth = take_auth(cache, auth_key(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD], base_url))
+    if auth is None:
+        login = LibreLinkApiLogin(entry.data[CONF_USERNAME], entry.data[CONF_PASSWORD], base_url, session)
+        try:
+            await login.async_get_token()
+        except LibreLinkApiAuthenticationError as error:
+            raise ConfigEntryAuthFailed(str(error)) from None
+        except LibreLinkApiError as error:
+            raise ConfigEntryNotReady(str(error)) from None
+        auth = login.auth
     myLibrelinkClient = LibreLinkApiClient(
-        sessionToken,
-        session=async_get_clientsession(hass),
-        base_url=BASE_URL_LIST.get(entry.data[COUNTRY]),
-    )
-
-    # Kept for later use in case historical data is needed
-    # myLibreLinkGetGraph = LibreLinkGetGraph(
-    #     sessionToken,
-    #     session=async_get_clientsession(hass),
-    #     base_url=BASE_URL_LIST.get(entry.data[COUNTRY]),
-    #     patient_id="4cd06c35-28d0-11ec-ae45-0242ac110005",
-    # )
-    # graph = await myLibreLinkGetGraph.async_get_data()
-    # print(f"graph {graph}")
+        auth.token, auth.base_url, session, account_id=auth.account_id)
 
     hass.data[DOMAIN][entry.entry_id] = coordinator = LibreLinkDataUpdateCoordinator(
         hass=hass,

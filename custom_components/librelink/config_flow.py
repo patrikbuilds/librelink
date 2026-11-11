@@ -9,13 +9,14 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_UNIT_OF_MEASUREMENT, CONF_USERNAME
 from homeassistant.helpers import config_validation as cv, selector
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import (
     LibreLinkApiAuthenticationError,
     LibreLinkApiCommunicationError,
     LibreLinkApiError,
     LibreLinkApiLogin,
+    auth_key, remember_auth,
 )
 from .const import BASE_URL_LIST, COUNTRY, COUNTRY_LIST, DOMAIN, LOGGER, MG_DL, MMOL_L
 
@@ -76,7 +77,7 @@ class LibreLinkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(
                         COUNTRY,
                         description="Country",
-                        default=(COUNTRY_LIST[0]),
+                        default=(user_input or {}).get(COUNTRY, COUNTRY_LIST[0]),
                     ): vol.In(COUNTRY_LIST),
                     vol.Required(
                         CONF_UNIT_OF_MEASUREMENT,
@@ -95,8 +96,10 @@ class LibreLinkFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             username=username,
             password=password,
             base_url=base_url,
-            session=async_create_clientsession(self.hass),
+            session=async_get_clientsession(self.hass),
         )
 
         await client.async_get_token()
+        cache = self.hass.data.setdefault(DOMAIN, {}).setdefault('_auth_cache', {})
+        remember_auth(cache, auth_key(username, password, base_url), client.auth)
 

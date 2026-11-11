@@ -93,3 +93,33 @@ If you want to contribute to this please read the [Contribution guidelines](CONT
 ***
 
 <a href="https://www.buymeacoffee.com/roan7dxbbb" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+
+## Local login compatibility changes (1.2.5, not yet live-verified)
+
+- Client header version 4.16.0; hashed `Account-Id` on connection requests.
+- Europe 2 option and bounded API regional redirects, restricted to known hosts.
+  HTTP redirects are refused so credentials cannot follow arbitrary destinations.
+- One-use, 60-second in-memory validation session cache avoids the immediate
+  second login during entry setup. No token is written to HA config entries.
+- Selected region survives validation errors. HTTP 430/429 are reported as
+  server rejections, without assuming a bad password or immediately retrying.
+  HA may still schedule setup retries; disable the entry while investigating
+  persistent blocking. No terms are accepted automatically.
+- No request bodies, account identifiers, tokens or patient data are logged;
+  transport exceptions are not chained into logs.
+
+Developer tests (no real account/API calls):
+
+```bash
+python3 -m venv .venv
+.venv/bin/python3 -m pip install -r requirements-dev.txt
+.venv/bin/python3 -m unittest discover -s tests -v
+```
+
+These are compatibility changes, not proof that HTTP 430 is resolved. Review
+changes, install the fork update through Marketplace and restart HA only after
+explicit approval. Try one Europe login and inspect the status-only diagnostic.
+The original source of 430 may still be server-side blocking.
+
+Implementation reference:
+https://github.com/nightscout/nightscout-connect/blob/main/lib/sources/librelinkup.js
